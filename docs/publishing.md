@@ -46,7 +46,7 @@ Effect behavior or every possible version of companion packages.
 
 ## New Effect releases
 
-The `effect-updates.yml` workflow polls the npm registry hourly at minute 17 and supports
+The `effect-updates.yml` workflow polls the npm registry every three hours at minute 17 (UTC) and supports
 manual dispatch. GitHub schedules can be delayed; this is polling, not a direct npm publish
 webhook. It enumerates stable releases rather than only reading the `latest` tag, and proposes
 the oldest not-yet-supported release in the current major. It verifies that compatible stable companion releases exist.
@@ -66,6 +66,10 @@ This uses a small scheduled updater instead of Renovate's standard range widenin
 not preserve an append-only list of exact tested versions without custom upgrade hooks.
 
 ## Releases
+
+`scripts/release.ts` loads `scripts/release-options.ts` directly with Bun and passes the options
+to the semantic-release API. This supports TypeScript 7 without relying on the config loader’s
+removed TypeScript compiler APIs.
 
 After a successful main-branch compatibility gate, semantic-release analyzes Conventional
 Commits. `fix(compat)` produces a patch; normal `fix`/`feat`/breaking-change semantics apply to
