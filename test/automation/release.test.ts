@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { analyzeCommits } from '@semantic-release/commit-analyzer'
 import { parse } from 'yaml'
-import { commitAnalysis } from '../../release.config.ts'
+import { commitAnalysis } from '../../scripts/release-options.ts'
 import { integrity, pack } from '../../scripts/package-artifact.ts'
 import { validateArtifact } from '../../scripts/release-plugin.ts'
 

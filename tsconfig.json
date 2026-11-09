@@ -18,7 +18,6 @@
     "tsdown.config.ts",
     "test/unit/**/*.ts",
     "scripts/**/*.ts",
-    "test/automation/**/*.ts",
-    "release.config.ts"
+    "test/automation/**/*.ts"
   ]
 }
