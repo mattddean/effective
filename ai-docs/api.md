@@ -1,6 +1,7 @@
 # Effective API
 
-These examples use the ESM package `@mtdn.dev/effective` with Effect 4.1.2.
+These examples use the ESM package `@mtdn.dev/effective`. The installed package’s
+`peerDependencies.effect` lists the exact Effect versions verified by the compatibility suite.
 Effective exports `defineModule`, `defineModules`, `defineServiceLayer`,
 `createEventSystem`, `EventListenerError`, `eventNameSchema`, and `EventJournalLive`.
 `DomainEvent`, `TransactionalListenerDefinition`, `WorkflowListenerDefinition`, and

@@ -10,11 +10,15 @@
       "bun",
       "node"
     ],
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "src/**/*.ts",
     "tsdown.config.ts",
-    "test/unit/**/*.ts"
+    "test/unit/**/*.ts",
+    "scripts/**/*.ts",
+    "test/automation/**/*.ts",
+    "release.config.ts"
   ]
 }

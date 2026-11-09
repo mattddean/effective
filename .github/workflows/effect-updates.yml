@@ -1,0 +1,57 @@
+name: Effect support updates
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: effect-support-updates
+  cancel-in-progress: false
+jobs:
+  propose:
+    if: vars.EFFECT_UPDATES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - id: candidate
+        run: bun scripts/update-effect-support.ts
+      - if: steps.candidate.outputs.changed == 'true'
+        id: app
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.EFFECT_BOT_APP_ID }}
+          private-key: ${{ secrets.EFFECT_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-administration: read
+      - if: steps.candidate.outputs.changed == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8
+        with:
+          token: ${{ steps.app.outputs.token }}
+          branch: automation/effect-support
+          delete-branch: true
+          add-paths: |
+            package.json
+            bun.lock
+          commit-message: 'fix(compat): support Effect ${{ steps.candidate.outputs.version }}'
+          title: 'fix(compat): support Effect ${{ steps.candidate.outputs.version }}'
+          body: |
+            Proposes one exact Effect version in the supported peer list.
+            CI must test this candidate and every previously supported version before merge.
+            Failing candidates stay unsupported; the published package is unchanged until release.
+      - if: steps.pr.outputs.pull-request-number != ''
+        name: Enable protected automerge
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+          EFFECT_VERSION: ${{ steps.candidate.outputs.version }}
+        run: bun scripts/enable-compat-automerge.ts

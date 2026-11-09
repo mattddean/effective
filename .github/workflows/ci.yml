@@ -3,19 +3,97 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  check:
+  prepare:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - id: matrix
+        env:
+          EFFECT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: bun scripts/effect-policy.ts matrix
+      - run: bun run check
+      - name: Pack the development baseline once
+        run: bun scripts/package-artifact.ts
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: effective-package
+          path: .artifacts/effective.tgz
+          if-no-files-found: error
+          include-hidden-files: true
+  compatibility:
+    needs: prepare
+    name: Effect ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
-      - run: npm install --global npm@12.2.2
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.4
-      - run: npm ci
-      - run: npm run check
+      - run: bun install --frozen-lockfile
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: effective-package
+          path: .artifacts
+      - name: Verify source and the shared tarball
+        env:
+          EFFECT_VERSION: ${{ matrix.version }}
+        run: bun scripts/check-effect-version.ts --effect "$EFFECT_VERSION" --tarball .artifacts/effective.tgz
+  gate:
+    name: Compatibility gate
+    if: always()
+    needs: [prepare, compatibility]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every compatibility job to succeed
+        env:
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          MATRIX_RESULT: ${{ needs.compatibility.result }}
+        run: test "$PREPARE_RESULT" = success && test "$MATRIX_RESULT" = success
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.NPM_RELEASES_ENABLED == 'true'
+    needs: gate
+    runs-on: ubuntu-latest
+    environment: npm
+    concurrency:
+      group: npm-release
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

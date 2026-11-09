@@ -36,14 +36,21 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
-    "test": "bun test test/unit",
-    "check": "npm run typecheck && npm test && npm run build && publint && node scripts/check-package.mjs",
-    "prepublishOnly": "npm run check",
-    "prepack": "npm run build"
+    "test": "bun test test/unit test/automation",
+    "check": "bun run typecheck && bun run test && bun run build && publint --pack bun && bun scripts/check-package.ts",
+    "prepublishOnly": "bun run check",
+    "prepack": "bun run build",
+    "effect:matrix": "bun scripts/effect-policy.ts matrix",
+    "effect:check": "bun scripts/check-effect-version.ts",
+    "effect:update": "bun scripts/update-effect-support.ts",
+    "test:automation": "bun test test/automation",
+    "release": "bun ./node_modules/semantic-release/bin/semantic-release.js",
+    "pack": "bun run build && bun scripts/package-artifact.ts",
+    "check:supported": "bun scripts/check-supported.ts"
   },
   "peerDependencies": {
     "drizzle-orm": "^0.45.4",
-    "effect": "~4.1.2"
+    "effect": "4.1.0 || 4.1.1 || 4.1.2"
   },
   "peerDependenciesMeta": {
     "drizzle-orm": {
@@ -53,14 +60,23 @@
   "devDependencies": {
     "@effect/platform-bun": "4.1.2",
     "@effect/sql-sqlite-bun": "4.1.2",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/github": "12.0.10",
+    "@semantic-release/release-notes-generator": "14.1.1",
     "@types/bun": "1.4.4",
     "@types/node": "24.19.2",
+    "@types/semver": "7.8.0",
     "drizzle-orm": "0.45.4",
     "effect": "4.1.2",
+    "npm": "11.21.2",
     "publint": "0.3.25",
+    "semantic-release": "25.0.9",
+    "semver": "7.8.6",
     "tsdown": "0.23.7",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "yaml": "2.9.1"
   },
   "license": "MIT",
-  "sideEffects": false
+  "sideEffects": false,
+  "packageManager": "bun@1.4.4"
 }
