@@ -3,9 +3,9 @@ import type * as Effect from 'effect/Effect'
 
 import * as Layer from 'effect/Layer'
 
-import type { EventName } from '~/framework/event.schema'
+import type { EventName } from './event.schema.js'
 
-import { provideCommands, type ProvidedCommandFactory } from '~/framework/command.logic'
+import { provideCommands, type ProvidedCommandFactory } from './command.logic.js'
 
 type Layers = ReadonlyArray<Layer.Any>
 type ModuleEvent = { readonly name: EventName; readonly layer: Layer.Any }

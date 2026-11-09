@@ -4,7 +4,7 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Option from 'effect/Option'
 
-import { defineModule } from '~/framework/module.logic'
+import { defineModule } from '../../src/module.logic.js'
 
 class Input extends Context.Service<Input, { readonly value: number }>()('ModuleTest/Input') {}
 class Imported extends Context.Service<Imported, Input['Service']>()('ModuleTest/Imported') {}

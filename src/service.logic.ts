@@ -13,7 +13,7 @@ type SelfContainedMethods<Shape> = {
 /**
  * Builds an application-service layer whose Effect methods have no unresolved service requirements.
  *
- * A leaked requirement, such as ShoppingTransaction from event publication, is reported at the service's `make`
+ * A leaked requirement, such as a transaction service from event publication, is reported at the service's `make`
  * declaration instead of propagating to an HTTP or runtime boundary. NoInfer keeps the declared service shape from
  * widening to accommodate the leak. Method arguments, results, errors, and value properties remain inferred;
  * construction dependencies and errors remain on the returned layer.

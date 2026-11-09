@@ -1,6 +1,6 @@
 import * as Schema from 'effect/Schema'
 
-/** Dot-separated identities for event contracts and listener diagnostics, such as moments.post-created. */
+/** Dot-separated identities for event contracts and listener diagnostics, such as posts.created. */
 export const eventNameSchema = Schema.TemplateLiteral([Schema.String, '.', Schema.String])
 export type EventName = Schema.Schema.Type<typeof eventNameSchema>
 

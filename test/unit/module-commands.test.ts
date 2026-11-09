@@ -8,10 +8,10 @@ import * as Layer from 'effect/Layer'
 import * as Option from 'effect/Option'
 import * as Schema from 'effect/Schema'
 
-import { defineEvent, defineListener } from '~/framework/event.logic'
-import { defineModule, defineModules } from '~/framework/module.logic'
-import { withShoppingTransaction } from '~/infrastructure/transaction.operation'
-import { testRuntime } from '~/test/runtime/root.runtime'
+import { defineEvent, defineListener } from './fixtures.js'
+import { defineModule, defineModules } from '../../src/module.logic.js'
+import { withTransaction } from './fixtures.js'
+import { testRuntime } from './fixtures.js'
 
 class FactoryInput extends Context.Service<FactoryInput, { readonly value: number }>()('ModuleCommands/FactoryInput') {}
 class HandlerInput extends Context.Service<HandlerInput, { readonly value: number }>()('ModuleCommands/HandlerInput') {}
@@ -422,7 +422,7 @@ test('command execution activates consumer listeners once and releases their sub
     exports: [],
     events: [event],
     commands: [
-      Effect.succeed(Command.make('publish', {}, () => event.publish({ value: true }).pipe(withShoppingTransaction))),
+      Effect.succeed(Command.make('publish', {}, () => event.publish({ value: true }).pipe(withTransaction))),
     ],
   })
   const consumer = defineModule({
@@ -452,7 +452,7 @@ test('command execution activates consumer listeners once and releases their sub
       expect(received).toEqual([true])
       yield* run(['publish'])
       expect(received).toEqual([true, true])
-      yield* event.publish({ value: false }).pipe(withShoppingTransaction)
+      yield* event.publish({ value: false }).pipe(withTransaction)
       expect(received).toEqual([true, true])
     }).pipe(Effect.provide(event.layer)),
   )

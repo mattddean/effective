@@ -1,0 +1,66 @@
+{
+  "name": "@mtdn.dev/effective",
+  "version": "0.1.0",
+  "description": "Capability modules, application-service contracts, and durable domain events for Effect",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattddean/effective.git"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "files": [
+    "dist",
+    "AGENTS.md",
+    "ai-docs",
+    "skills"
+  ],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage.d.ts",
+      "import": "./dist/storage.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test test/unit",
+    "check": "npm run typecheck && npm test && npm run build && publint && node scripts/check-package.mjs",
+    "prepublishOnly": "npm run check",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "^0.45.4",
+    "effect": "~4.1.2"
+  },
+  "peerDependenciesMeta": {
+    "drizzle-orm": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@effect/platform-bun": "4.1.2",
+    "@effect/sql-sqlite-bun": "4.1.2",
+    "@types/bun": "1.4.4",
+    "@types/node": "24.19.2",
+    "drizzle-orm": "0.45.4",
+    "effect": "4.1.2",
+    "publint": "0.3.25",
+    "tsdown": "0.23.7",
+    "typescript": "6.0.3"
+  },
+  "license": "MIT",
+  "sideEffects": false
+}

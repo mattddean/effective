@@ -3,21 +3,22 @@ import * as Effect from 'effect/Effect'
 import * as FileSystem from 'effect/FileSystem'
 import * as Path from 'effect/Path'
 
-import { testRuntime } from '~/test/runtime/root.runtime'
+import { testRuntime } from './fixtures.js'
 
-const backend = new URL('../', import.meta.url).pathname
+const backend = new URL('../../', import.meta.url).pathname
 
 const compile = Effect.fn('ModuleEventsTest.compile')(function* (source: string) {
   const fs = yield* FileSystem.FileSystem
   const path = yield* Path.Path
   const directory = yield* fs.makeTempDirectoryScoped({ prefix: 'effective-module-events-' })
   yield* fs.writeFileString(
-    path.join(directory, 'events.types.ts'),
+    path.join(directory, 'events.types.mts'),
     `
-    import { defineEvent } from '${backend}framework/event.logic'
-    import { defineModule, defineModules } from '${backend}framework/module.logic'
-    import { PostCreated } from '${backend}modules/moments/post-created.event'
-    import { CommentCreated } from '${backend}modules/moments/comment-created.event'
+    import { defineEvent } from '${backend}test/unit/fixtures.js'
+    import { defineModule, defineModules } from '${backend}src/module.logic.js'
+    import * as Schema from '${backend}node_modules/effect/dist/Schema.js'
+    const PostCreated = defineEvent('posts.created', { payload: Schema.Struct({ id: Schema.String }) })
+    const CommentCreated = defineEvent('comments.created', { payload: Schema.Struct({ id: Schema.String }) })
     ${source}
   `,
   )
@@ -29,7 +30,7 @@ const compile = Effect.fn('ModuleEventsTest.compile')(function* (source: string)
       "noEmit": true, "rootDir": "/", "types": ["bun"],
       "typeRoots": ["${backend}node_modules/@types"]
     },
-    "files": ["./events.types.ts"], "include": []
+    "files": ["./events.types.mts"], "include": []
   }`,
   )
   const process = Bun.spawn(
