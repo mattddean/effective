@@ -4,8 +4,9 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { analyzeCommits } from '@semantic-release/commit-analyzer'
+import { generateNotes } from '@semantic-release/release-notes-generator'
 import { parse } from 'yaml'
-import { commitAnalysis } from '../../scripts/release-options.ts'
+import releaseOptions, { commitAnalysis } from '../../scripts/release-options.ts'
 import { integrity, pack } from '../../scripts/package-artifact.ts'
 import { validateArtifact } from '../../scripts/release-plugin.ts'
 
@@ -16,6 +17,35 @@ test('compatibility commits cause a patch release; ordinary maintenance does not
   const analyze = (message: string) => analyzeCommits(options, { cwd: root.pathname, commits: [{ message }], logger: { log() {} } })
   expect(await analyze('fix(compat): support Effect 4.1.3')).toBe('patch')
   expect(await analyze('chore: update CI')).toBe(null)
+})
+
+const breakingCommit = {
+  hash: '91b3d2f0df7c0a0c22c132bd09574a3133fc2f08',
+  message: 'feat!: expose tree-shakable Drizzle storage and restore integration coverage (#3)',
+}
+
+test.each([
+  [breakingCommit.message, 'major'],
+  ['feat(storage)!: change storage imports', 'major'],
+  ['feat: add a storage adapter', 'minor'],
+  ['fix: correct storage wiring', 'patch'],
+  ['feat: change storage imports\n\nBREAKING CHANGE: import storage from storage/drizzle', 'major'],
+] as const)('release analysis classifies %s as %s', async (message, expected) => {
+  expect(await analyzeCommits(commitAnalysis, { cwd: root.pathname, commits: [{ message }], logger: { log() {} } })).toBe(expected)
+})
+
+test('release notes include the skipped feature and its breaking-change warning', async () => {
+  const plugin = releaseOptions.plugins.find(plugin => Array.isArray(plugin) && plugin[0] === '@semantic-release/release-notes-generator')
+  const notes = await generateNotes(Array.isArray(plugin) ? plugin[1] : {}, {
+    cwd: root.pathname,
+    commits: [breakingCommit],
+    lastRelease: { gitTag: 'v0.1.1' },
+    nextRelease: { version: '1.0.0', gitTag: 'v1.0.0' },
+    options: { repositoryUrl: 'https://github.com/mattddean/effective.git' },
+  })
+  expect(notes).toContain('expose tree-shakable Drizzle storage and restore integration coverage')
+  expect(notes).toContain('BREAKING CHANGES')
+  expect(notes).toContain('91b3d2f')
 })
 
 test('release refuses a tarball changed after validation', () => {
