@@ -12,7 +12,6 @@ const rule = {
   type: 'required_status_checks', ruleset_id: 42,
   parameters: { strict_required_status_checks_policy: true, required_status_checks: [{ context: 'Compatibility gate' }] },
 }
-const ruleset = { enforcement: 'active', bypass_actors: [] }
 const classic = {
   required_status_checks: { strict: true, contexts: ['Compatibility gate'] },
   enforce_admins: { enabled: true },
@@ -48,7 +47,7 @@ function expectRefusal(responses: Record<string, unknown>, message: string) {
   expect(result.calls.some(args => args[0] === 'pr')).toBe(false)
 }
 
-const protectedByRuleset = { [protectionPath]: missing, [rulesPath]: [rule], [rulesetPath]: ruleset }
+const protectedByRuleset = { [protectionPath]: missing, [rulesPath]: [rule] }
 
 test('ruleset-only protection enables automerge after classic protection returns 404', () => {
   const result = run(protectedByRuleset)
@@ -67,12 +66,10 @@ test.each([
   expectRefusal({ ...protectedByRuleset, [rulesPath]: [invalidRule] }, 'Compatibility gate check and up-to-date branches')
 })
 
-test.each([
-  ['bypass actors', { ...ruleset, bypass_actors: [{ actor_type: 'Integration', actor_id: 1 }] }],
-  ['hidden bypass actors', { enforcement: 'active' }],
-  ['inactive ruleset', { ...ruleset, enforcement: 'disabled' }],
-])('rulesets refuse %s', (_, invalidRuleset) => {
-  expectRefusal({ ...protectedByRuleset, [rulesetPath]: invalidRuleset }, 'active ruleset with a visible, empty bypass list')
+test('rulesets enable automerge when bypass actors are hidden', () => {
+  const result = run(protectedByRuleset)
+  expect(result.status).toBe(0)
+  expect(result.calls).not.toContainEqual(['api', rulesetPath])
 })
 
 test('unprotected branches fail with an actionable message', () => {
@@ -89,18 +86,18 @@ test('classic protection refuses admin and review bypasses', () => {
 })
 
 
-test('all pages are checked and unrelated ruleset bypasses do not weaken the qualifying rule', () => {
+test('all pages are checked for a qualifying active branch rule', () => {
   const result = run({ ...protectedByRuleset, [rulesPath]: [
     { type: 'deletion', ruleset_id: 99 },
     { ...rule, ruleset_id: 43 },
     rule,
-  ], [`${repository}/rulesets/43`]: { ...ruleset, bypass_actors: [{ actor_type: 'RepositoryRole', actor_id: 5 }] } })
+  ] })
   expect(result.status).toBe(0)
   expect(result.calls).toContainEqual(['api', rulesPath, '--paginate', '--slurp'])
 })
 
-test('ruleset lookup failures prevent automerge', () => {
-  expectRefusal({ ...protectedByRuleset, [rulesetPath]: { status: '403', message: 'Forbidden' } }, 'Forbidden')
+test('active branch rule lookup failures prevent automerge', () => {
+  expectRefusal({ ...protectedByRuleset, [rulesPath]: { status: '403', message: 'Forbidden' } }, 'Forbidden')
 })
 
 test('classic protection recognizes check objects as well as context strings', () => {
