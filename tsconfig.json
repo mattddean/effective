@@ -17,6 +17,7 @@
     "src/**/*.ts",
     "tsdown.config.ts",
     "test/unit/**/*.ts",
+    "test/integration/**/*.ts",
     "scripts/**/*.ts",
     "test/automation/**/*.ts"
   ]

@@ -5,5 +5,5 @@ export {
   eventJournalSources,
   eventRemoteCheckpoints,
   eventRemoteCursors,
-} from './event-journal.schema.js'
-export { clusterMessages, clusterReplies, clusterRunners } from './workflow-storage.schema.js'
+} from '../event-journal.schema.js'
+export { clusterMessages, clusterReplies, clusterRunners } from '../workflow-storage.schema.js'

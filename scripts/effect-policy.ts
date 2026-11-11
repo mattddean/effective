@@ -7,7 +7,7 @@ import semver from 'semver'
 
 import type { PackageManifest, RegistryMetadata, SupportManifest } from './types.ts'
 
-export const companions = ['@effect/platform-bun', '@effect/sql-sqlite-bun']
+export const companions = ['@effect/platform-bun', '@effect/sql-sqlite-bun', '@effect/sql-pg']
 
 export function supportedVersions(manifest: SupportManifest): string[] {
   const range = manifest.peerDependencies?.effect

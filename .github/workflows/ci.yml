@@ -27,6 +27,8 @@ jobs:
         env:
           EFFECT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: bun scripts/effect-policy.ts matrix
+      - name: Check Docker for PostgreSQL integration tests
+        run: docker info
       - run: bun run check
       - name: Pack the development baseline once
         run: bun scripts/package-artifact.ts
@@ -56,6 +58,8 @@ jobs:
         with:
           name: effective-package
           path: .artifacts
+      - name: Check Docker for PostgreSQL integration tests
+        run: docker info
       - name: Verify source and the shared tarball
         env:
           EFFECT_VERSION: ${{ matrix.version }}

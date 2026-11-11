@@ -1,7 +1,8 @@
 import { bigint, boolean, integer, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 
-// Read mappings only; Effect owns table creation and migrations. Schema tests check the installed version's DDL.
-export const clusterMessages = pgTable('cluster_messages', {
+// Read mappings only; Effect owns migrations. PostgreSQL tests compare its DDL with these mappings.
+// Pure factories let consumers tree-shake unused tables, including their column builders.
+export const clusterMessages = /* @__PURE__ */ (() => pgTable('cluster_messages', {
   id: bigint('id', { mode: 'bigint' }).primaryKey(),
   rowId: bigint('rowid', { mode: 'bigint' }).notNull(),
   messageId: varchar('message_id', { length: 255 }),
@@ -21,9 +22,9 @@ export const clusterMessages = pgTable('cluster_messages', {
   lastReplyId: bigint('last_reply_id', { mode: 'bigint' }),
   lastRead: timestamp('last_read'),
   deliverAt: bigint('deliver_at', { mode: 'bigint' }),
-})
+}))()
 
-export const clusterReplies = pgTable('cluster_replies', {
+export const clusterReplies = /* @__PURE__ */ (() => pgTable('cluster_replies', {
   id: bigint('id', { mode: 'bigint' }).primaryKey(),
   rowId: bigint('rowid', { mode: 'bigint' }).notNull(),
   kind: integer('kind'),
@@ -31,12 +32,12 @@ export const clusterReplies = pgTable('cluster_replies', {
   payload: text('payload').notNull(),
   sequence: integer('sequence'),
   acked: boolean('acked').notNull(),
-})
+}))()
 
-export const clusterRunners = pgTable('cluster_runners', {
+export const clusterRunners = /* @__PURE__ */ (() => pgTable('cluster_runners', {
   machineId: integer('machine_id').primaryKey(),
   address: varchar('address', { length: 255 }).notNull(),
   runner: text('runner').notNull(),
   healthy: boolean('healthy').notNull(),
   lastHeartbeat: timestamp('last_heartbeat').notNull(),
-})
+}))()

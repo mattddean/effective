@@ -23,7 +23,7 @@ try {
   const tarball = values.tarball ? resolve(values.tarball) : pack(root, scratch)
   const { files: paths, manifest: packedManifest } = contents(tarball)
   assert.equal(packedManifest.peerDependencies.effect, manifest.peerDependencies.effect)
-  for (const required of ['LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/storage.js', 'dist/storage.d.ts', 'AGENTS.md', 'ai-docs/api.md', 'skills/effective/SKILL.md']) {
+  for (const required of ['LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/storage/drizzle.js', 'dist/storage/drizzle.d.ts', 'AGENTS.md', 'ai-docs/api.md', 'skills/effective/SKILL.md']) {
     assert(paths.includes(required), `Missing packed file: ${required}`)
   }
   assert(paths.every(path => /^(dist\/|ai-docs\/|AGENTS\.md$|skills\/|package\.json$|README\.md$|LICENSE$)/.test(path)), 'Unexpected files in npm tarball')
@@ -69,11 +69,23 @@ try {
   run('node', ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';
     import { getTableName } from 'drizzle-orm';
-    import { eventJournal, clusterMessages } from '@mtdn.dev/effective/storage';
+    import { eventJournal, clusterMessages } from '@mtdn.dev/effective/storage/drizzle';
     assert.equal(getTableName(eventJournal), 'effect_event_journal');
     assert.equal(getTableName(clusterMessages), 'cluster_messages');
   `])
-  console.log(`Validated ${manifest.name}@${packedManifest.version} with Effect ${effectVersion}: tarball contents, standalone ESM imports, optional storage, installed-package skill guidance, and all packaged TypeScript examples.`)
+  writeFileSync(join(scratch, 'storage.ts'), `
+    import { clusterMessages } from '@mtdn.dev/effective/storage/drizzle';
+    export const messages = clusterMessages;
+  `)
+  run(join(root, 'node_modules/.bin/tsc'), ['--noEmit', '--strict', '--skipLibCheck', '--target', 'es2022', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'storage.ts'])
+  const bundled = await Bun.build({ entrypoints: [join(scratch, 'storage.ts')], target: 'browser', minify: true })
+  assert(bundled.success, 'Drizzle schema consumer must bundle')
+  const bundle = await bundled.outputs[0].text()
+  assert(bundle.includes('cluster_messages'), 'Selected table must survive tree shaking')
+  for (const unused of ['cluster_replies', 'cluster_runners', 'effect_event_journal']) {
+    assert(!bundle.includes(unused), `Unused table survived tree shaking: ${unused}`)
+  }
+  console.log(`Validated ${manifest.name}@${packedManifest.version} with Effect ${effectVersion}: tarball contents, standalone ESM imports, optional tree-shaken Drizzle storage, installed-package skill guidance, and all packaged TypeScript examples.`)
 } catch (error) {
   if (error instanceof Error) {
     for (const stream of ["stdout", "stderr"]) {
