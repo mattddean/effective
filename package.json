@@ -22,9 +22,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./storage": {
-      "types": "./dist/storage.d.ts",
-      "import": "./dist/storage.js"
+    "./storage/drizzle": {
+      "types": "./dist/storage/drizzle.d.ts",
+      "import": "./dist/storage/drizzle.js"
     },
     "./package.json": "./package.json"
   },
@@ -36,7 +36,7 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
-    "test": "bun test test/unit test/automation",
+    "test": "bun test test/unit test/automation && bun run test:integration",
     "check": "bun run typecheck && bun run test && bun run build && publint --pack bun && bun scripts/check-package.ts",
     "prepublishOnly": "bun run check",
     "prepack": "bun run build",
@@ -46,7 +46,8 @@
     "test:automation": "bun test test/automation",
     "release": "bun scripts/release.ts",
     "pack": "bun run build && bun scripts/package-artifact.ts",
-    "check:supported": "bun scripts/check-supported.ts"
+    "check:supported": "bun scripts/check-supported.ts",
+    "test:integration": "bun test --preload ./test/integration/setup.ts test/integration"
   },
   "peerDependencies": {
     "drizzle-orm": "^0.45.4",
@@ -59,10 +60,12 @@
   },
   "devDependencies": {
     "@effect/platform-bun": "4.1.2",
+    "@effect/sql-pg": "4.1.2",
     "@effect/sql-sqlite-bun": "4.1.2",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/github": "12.0.10",
     "@semantic-release/release-notes-generator": "14.1.1",
+    "@testcontainers/postgresql": "12.2.1",
     "@types/bun": "1.4.4",
     "@types/node": "24.19.2",
     "@types/semver": "7.8.0",

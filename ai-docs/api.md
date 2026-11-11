@@ -6,7 +6,7 @@ Effective exports `defineModule`, `defineModules`, `defineServiceLayer`,
 `createEventSystem`, `EventListenerError`, `eventNameSchema`, and `EventJournalLive`.
 `DomainEvent`, `TransactionalListenerDefinition`, `WorkflowListenerDefinition`, and
 `EventName` are public types. PostgreSQL Drizzle read models are available separately
-from `@mtdn.dev/effective/storage`; that entry requires `drizzle-orm`.
+from `@mtdn.dev/effective/storage/drizzle`; that entry requires `drizzle-orm`.
 
 ## Service and module
 

@@ -74,3 +74,28 @@ flowchart TD
 ## CLI commands
 
 Each capability owns its command groups and subcommands in `.command.ts` files and registers their factories in its `.module.ts` definition.
+
+## Storage read models
+
+PostgreSQL Drizzle read models are exported from `@mtdn.dev/effective/storage/drizzle`.
+Install the optional `drizzle-orm` peer to use them. Import only the tables you need;
+unused tables can be tree-shaken. This replaces the previous `/storage` entry.
+Effect owns table creation and migrations.
+
+```ts
+import { clusterMessages, eventJournal } from '@mtdn.dev/effective/storage/drizzle'
+```
+
+## Tests
+
+`bun run check` runs type checks, unit and automation tests, PostgreSQL integration tests,
+and package validation. Docker must be running; Testcontainers creates and removes a
+PostgreSQL 17 database without using deployment credentials. Run just the database suite
+with `bun run test:integration`, or the resource-free suites with
+`bun test test/unit test/automation`.
+
+CI repeats the integration suite for every supported Effect version. The schema test
+compares all exported read models with the tables created by Effect, checking column names,
+SQL types, nullability, and primary-key membership. The extracted Junior event suites also
+cover concurrency and interruption, commit visibility and rollback, durable workflow
+starts, independent consumers, and recovery after a worker is killed.

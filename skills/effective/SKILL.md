@@ -23,7 +23,7 @@ This repository uses the Effective TypeScript library (`@mtdn.dev/effective`).
 Before writing any Effective code, first read
 `node_modules/@mtdn.dev/effective/AGENTS.md` completely and follow its links when required.
 For API signatures not covered by the guide, inspect the installed package's
-`dist/index.d.ts` and `dist/storage.d.ts` declarations.
+`dist/index.d.ts` and `dist/storage/drizzle.d.ts` declarations.
 ```
 
 In monorepos or with hoisted dependencies, use the installed package path reachable

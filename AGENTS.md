@@ -1,7 +1,7 @@
 # Effective library guidance
 
 Use this guidance for the installed `@mtdn.dev/effective` package. For API signatures,
-inspect its `dist/index.d.ts` and `dist/storage.d.ts` declarations.
+inspect its `dist/index.d.ts` and `dist/storage/drizzle.d.ts` declarations.
 
 Read [ai-docs/api.md](./ai-docs/api.md) when defining services or modules, binding database
 and transaction services, or implementing event publication and listeners.
