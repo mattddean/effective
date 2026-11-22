@@ -5,7 +5,7 @@ import * as Effect from 'effect/Effect'
 import {
   clusterMessages, clusterReplies, clusterRunners,
   eventJournal, eventJournalSequence, eventJournalSources, eventRemoteCheckpoints, eventRemoteCursors,
-} from '../../src/storage/drizzle.js'
+} from '../../src/storage/drizzle/postgres.js'
 import { Database } from './fixtures/database.js'
 import { testRuntime } from './fixtures/runtime.js'
 

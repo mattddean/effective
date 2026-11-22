@@ -22,9 +22,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./storage/drizzle": {
-      "types": "./dist/storage/drizzle.d.ts",
-      "import": "./dist/storage/drizzle.js"
+    "./storage/drizzle/postgres": {
+      "types": "./dist/storage/drizzle/postgres.d.ts",
+      "import": "./dist/storage/drizzle/postgres.js"
     },
     "./package.json": "./package.json"
   },

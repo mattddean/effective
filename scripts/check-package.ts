@@ -23,7 +23,7 @@ try {
   const tarball = values.tarball ? resolve(values.tarball) : pack(root, scratch)
   const { files: paths, manifest: packedManifest } = contents(tarball)
   assert.equal(packedManifest.peerDependencies.effect, manifest.peerDependencies.effect)
-  for (const required of ['LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/storage/drizzle.js', 'dist/storage/drizzle.d.ts', 'AGENTS.md', 'ai-docs/api.md', 'skills/effective/SKILL.md']) {
+  for (const required of ['LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/storage/drizzle/postgres.js', 'dist/storage/drizzle/postgres.d.ts', 'AGENTS.md', 'ai-docs/api.md', 'skills/effective/SKILL.md']) {
     assert(paths.includes(required), `Missing packed file: ${required}`)
   }
   assert(paths.every(path => /^(dist\/|ai-docs\/|AGENTS\.md$|skills\/|package\.json$|README\.md$|LICENSE$)/.test(path)), 'Unexpected files in npm tarball')
@@ -69,12 +69,12 @@ try {
   run('node', ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';
     import { getTableName } from 'drizzle-orm';
-    import { eventJournal, clusterMessages } from '@mtdn.dev/effective/storage/drizzle';
+    import { eventJournal, clusterMessages } from '@mtdn.dev/effective/storage/drizzle/postgres';
     assert.equal(getTableName(eventJournal), 'effect_event_journal');
     assert.equal(getTableName(clusterMessages), 'cluster_messages');
   `])
   writeFileSync(join(scratch, 'storage.ts'), `
-    import { clusterMessages } from '@mtdn.dev/effective/storage/drizzle';
+    import { clusterMessages } from '@mtdn.dev/effective/storage/drizzle/postgres';
     export const messages = clusterMessages;
   `)
   run(join(root, 'node_modules/.bin/tsc'), ['--noEmit', '--strict', '--skipLibCheck', '--target', 'es2022', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'storage.ts'])

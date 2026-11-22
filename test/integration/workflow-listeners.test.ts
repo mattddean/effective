@@ -12,7 +12,7 @@ import * as Schedule from 'effect/Schedule'
 import * as Schema from 'effect/Schema'
 import { WorkflowEngine } from 'effect/workflow'
 
-import type { clusterMessages } from '../../src/storage/drizzle.js'
+import type { clusterMessages } from '../../src/storage/drizzle/postgres.js'
 
 import { defineEvent, defineListener } from './fixtures/events.js'
 import { defineModule } from '../../src/module.logic.js'

@@ -89,8 +89,8 @@ Effect automatically create tables in your database when you use the folloiwng l
 | `effect_event_remotes_checkpoints` | `SqlEventJournal.layer()` |
 | `effect_event_remotes_cursors` | `SqlEventJournal.layer()` |
 
-But their schemas are not published by Effect. It can be useful to get access to those schemas, so Effective provides them to you through `@mtdn.dev/effective/storage/drizzle`. Currently only Drizzle/Postgres tables are provided:
+But their schemas are not published by Effect. It can be useful to get access to those schemas, so Effective provides them to you through `@mtdn.dev/effective/storage/drizzle/postgres`. Currently only Drizzle/Postgres tables are provided:
 
 ```ts
-import { clusterMessages, eventJournal } from '@mtdn.dev/effective/storage/drizzle'
+import { clusterMessages, eventJournal } from '@mtdn.dev/effective/storage/drizzle/postgres'
 ```
